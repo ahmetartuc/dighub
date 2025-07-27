@@ -46,7 +46,7 @@ func Run(org, token string) error {
 			} else {
 				color.Yellow("[-] No result for: %s", dork)
 			}
-		} else if resp.StatusCode == 403 && strings.Contains(string(body), "rate limit exceeded") {
+		} else if resp.StatusCode == 403 && strings.Contains(string(body), "rate limit") {
 			waitUntilReset(token)
 			goto retry
 		} else {
@@ -74,12 +74,14 @@ func waitUntilReset(token string) {
 	var data map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&data)
 
-	if rate, ok := data["rate"].(map[string]interface{}); ok {
-		if reset, ok := rate["reset"].(float64); ok {
-			resetTime := time.Unix(int64(reset), 0)
-			waitTime := time.Until(resetTime) + (5 * time.Second)
-			color.Cyan("[*] Rate limit hit. Waiting %v until %s", waitTime.Round(time.Second), resetTime.Format("15:04:05"))
-			time.Sleep(waitTime)
+	if resources, ok := data["resources"].(map[string]interface{}); ok {
+		if search, ok := resources["search"].(map[string]interface{}); ok {
+			if reset, ok := search["reset"].(float64); ok {
+				resetTime := time.Unix(int64(reset), 0)
+				waitTime := time.Until(resetTime) + 5*time.Second
+				color.Cyan("[*] Search rate limit hit. Waiting %v until %s", waitTime.Round(time.Second), resetTime.Format("15:04:05"))
+				time.Sleep(waitTime)
+			}
 		}
 	}
 }
