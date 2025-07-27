@@ -53,7 +53,7 @@ func Run(org, token string) error {
 			color.Red("[!] GitHub API error: %d %s", resp.StatusCode, string(body))
 		}
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 	return nil
 }
