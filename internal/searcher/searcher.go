@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -13,7 +14,10 @@ import (
 )
 
 func Run(org, token string) error {
+	client := &http.Client{}
+
 	for _, dork := range dorks.Dorks {
+	retry:
 		query := fmt.Sprintf("org:%s %s", org, dork)
 		urlStr := fmt.Sprintf("https://api.github.com/search/code?q=%s", url.QueryEscape(query))
 
@@ -21,7 +25,6 @@ func Run(org, token string) error {
 		req.Header.Set("Authorization", "token "+token)
 		req.Header.Set("Accept", "application/vnd.github+json")
 
-		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
 			return err
@@ -29,6 +32,7 @@ func Run(org, token string) error {
 		defer resp.Body.Close()
 
 		body, _ := ioutil.ReadAll(resp.Body)
+
 		if resp.StatusCode == 200 {
 			var parsed map[string]interface{}
 			json.Unmarshal(body, &parsed)
@@ -42,6 +46,9 @@ func Run(org, token string) error {
 			} else {
 				color.Yellow("[-] No result for: %s", dork)
 			}
+		} else if resp.StatusCode == 403 && strings.Contains(string(body), "rate limit exceeded") {
+			waitUntilReset(token)
+			goto retry
 		} else {
 			color.Red("[!] GitHub API error: %d %s", resp.StatusCode, string(body))
 		}
@@ -49,4 +56,30 @@ func Run(org, token string) error {
 		time.Sleep(2 * time.Second)
 	}
 	return nil
+}
+
+func waitUntilReset(token string) {
+	url := "https://api.github.com/rate_limit"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "token "+token)
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		time.Sleep(60 * time.Second)
+		return
+	}
+	defer resp.Body.Close()
+
+	var data map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&data)
+
+	if rate, ok := data["rate"].(map[string]interface{}); ok {
+		if reset, ok := rate["reset"].(float64); ok {
+			resetTime := time.Unix(int64(reset), 0)
+			waitTime := time.Until(resetTime) + (5 * time.Second)
+			color.Cyan("[*] Rate limit hit. Waiting %v until %s", waitTime.Round(time.Second), resetTime.Format("15:04:05"))
+			time.Sleep(waitTime)
+		}
+	}
 }
