@@ -1,0 +1,38 @@
+# Binaries
+dighub
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output files
+*.out
+*.json
+*.csv
+*.html
+dighub-results.*
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Progress files
+.dighub-progress.json
+
+# Environment
+.env
+.env.local

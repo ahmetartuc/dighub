@@ -1,0 +1,100 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Verify dependencies
+      run: go mod verify
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Run go vet
+      run: go vet ./...
+
+    - name: Run go fmt
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "Code is not formatted:"
+          gofmt -s -l .
+          exit 1
+        fi
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        arch: [amd64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Build binary
+      run: |
+        GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}
+        GOARCH=${{ matrix.arch }}
+        EXT=${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        go build -v -o dighub-${GOOS}-${GOARCH}${EXT}
+      shell: bash
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: dighub-${{ matrix.os }}-${{ matrix.arch }}
+        path: dighub-*
+
+  release:
+    name: Release
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Create release assets
+      run: |
+        mkdir -p release
+        find . -name 'dighub-*' -type f -exec mv {} release/ \;
+
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
