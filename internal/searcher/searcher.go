@@ -3,14 +3,14 @@ package searcher
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/ahmetartuc/dighub/internal/dorks"
+	"github.com/fatih/color"
 )
 
 func Run(org, token string) error {
@@ -31,7 +31,7 @@ func Run(org, token string) error {
 		}
 		defer resp.Body.Close()
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 
 		if resp.StatusCode == 200 {
 			var parsed map[string]interface{}
