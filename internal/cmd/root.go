@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ahmetartuc/dighub/internal/config"
@@ -31,33 +30,27 @@ inside public repositories.`,
 func init() {
 	cfg = &config.Config{}
 
-	// Scan parameters
 	rootCmd.Flags().StringVarP(&cfg.Organization, "org", "o", "", "GitHub organization to scan (required)")
 	rootCmd.Flags().StringVarP(&cfg.Token, "token", "t", "", "GitHub Personal Access Token (required)")
 	rootCmd.Flags().StringVarP(&cfg.User, "user", "u", "", "GitHub user to scan (alternative to org)")
 
-	// Output parameters
 	rootCmd.Flags().StringVarP(&cfg.OutputFormat, "output", "f", "terminal", "Output format: terminal, json, csv, html")
 	rootCmd.Flags().StringVarP(&cfg.OutputFile, "out-file", "w", "", "Output file path (default: ./dighub-results.[format])")
 
-	// Filtering parameters
 	rootCmd.Flags().StringSliceVarP(&cfg.IncludeDorks, "include", "i", []string{}, "Include specific dorks (comma-separated)")
 	rootCmd.Flags().StringSliceVarP(&cfg.ExcludeDorks, "exclude", "e", []string{}, "Exclude specific dorks (comma-separated)")
 	rootCmd.Flags().StringVarP(&cfg.Priority, "priority", "p", "all", "Priority level: all, high, medium, low")
 
-	// Performance parameters
 	rootCmd.Flags().IntVarP(&cfg.Workers, "workers", "W", 5, "Number of concurrent workers")
 	rootCmd.Flags().IntVarP(&cfg.RateLimit, "rate-limit", "r", 30, "Requests per minute")
 	rootCmd.Flags().IntVarP(&cfg.Delay, "delay", "d", 2, "Delay between requests (seconds)")
 
-	// Other parameters
 	rootCmd.Flags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.Flags().BoolVarP(&cfg.Quiet, "quiet", "q", false, "Quiet mode (only show matches)")
 	rootCmd.Flags().BoolVarP(&cfg.NoColor, "no-color", "n", false, "Disable colored output")
 	rootCmd.Flags().BoolVarP(&cfg.SaveProgress, "save-progress", "s", false, "Save progress to resume later")
 	rootCmd.Flags().StringVar(&cfg.ProgressFile, "progress-file", ".dighub-progress.json", "Progress file path")
 
-	// Mark required flags
 	rootCmd.MarkFlagRequired("token")
 }
 
@@ -68,32 +61,26 @@ func Execute(ver string) error {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	// Validate configuration
 	if err := cfg.Validate(); err != nil {
 		return err
 	}
 
-	// Disable colors if requested
 	if cfg.NoColor {
 		color.NoColor = true
 	}
 
-	// Initialize logger
 	log := logger.New(cfg.Verbose, cfg.Quiet)
 
-	// Print banner
 	if !cfg.Quiet {
 		printBanner(version)
 	}
 
-	// Initialize scanner
 	log.Info("Initializing scanner...")
 	scn, err := scanner.New(cfg, log)
 	if err != nil {
 		return fmt.Errorf("failed to initialize scanner: %w", err)
 	}
 
-	// Run scan
 	log.Info("Starting scan...")
 	target := cfg.Organization
 	if target == "" {
@@ -108,14 +95,12 @@ func run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("scan failed: %w", err)
 	}
 
-	// Generate output
 	log.Info("Generating output...")
 	outputHandler := output.New(cfg)
 	if err := outputHandler.Write(results); err != nil {
 		return fmt.Errorf("failed to write output: %w", err)
 	}
 
-	// Print summary
 	if !cfg.Quiet {
 		printSummary(results, log)
 	}
