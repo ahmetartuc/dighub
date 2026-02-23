@@ -29,7 +29,7 @@ func (l *Logger) Info(format string, args ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, args...)
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s\n", 
+	fmt.Printf("%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.CyanString("[INFO]"),
 		msg,
@@ -43,7 +43,7 @@ func (l *Logger) Success(format string, args ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, args...)
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s\n", 
+	fmt.Printf("%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.GreenString("[✓]"),
 		color.GreenString(msg),
@@ -57,7 +57,7 @@ func (l *Logger) Warning(format string, args ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, args...)
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s\n", 
+	fmt.Printf("%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.YellowString("[!]"),
 		color.YellowString(msg),
@@ -68,7 +68,7 @@ func (l *Logger) Warning(format string, args ...interface{}) {
 func (l *Logger) Error(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Fprintf(os.Stderr, "%s %s %s\n", 
+	fmt.Fprintf(os.Stderr, "%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.RedString("[✗]"),
 		color.RedString(msg),
@@ -82,7 +82,7 @@ func (l *Logger) Debug(format string, args ...interface{}) {
 	}
 	msg := fmt.Sprintf(format, args...)
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s\n", 
+	fmt.Printf("%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.MagentaString("[DEBUG]"),
 		color.HiBlackString(msg),
@@ -92,13 +92,13 @@ func (l *Logger) Debug(format string, args ...interface{}) {
 // Match logs matched dorks (always shown unless quiet)
 func (l *Logger) Match(dork string, count int, urls []string) {
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s (%s)\n", 
+	fmt.Printf("%s %s %s (%s)\n",
 		color.BlueString("[%s]", timestamp),
 		color.GreenString("[+]"),
 		color.GreenString("Dork matched: %s", dork),
 		color.YellowString("%d results", count),
 	)
-	
+
 	if !l.quiet && !l.verbose {
 		// Show first 3 URLs in normal mode
 		limit := 3
@@ -125,7 +125,7 @@ func (l *Logger) NoMatch(dork string) {
 		return
 	}
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s %s\n", 
+	fmt.Printf("%s %s %s\n",
 		color.BlueString("[%s]", timestamp),
 		color.HiBlackString("[-]"),
 		color.HiBlackString("No results: %s", dork),
@@ -138,7 +138,7 @@ func (l *Logger) Progress(current, total int) {
 		return
 	}
 	percentage := float64(current) / float64(total) * 100
-	fmt.Printf("\r%s Progress: %d/%d (%.1f%%)  ", 
+	fmt.Printf("\r%s Progress: %d/%d (%.1f%%)  ",
 		color.CyanString("[SCAN]"),
 		current,
 		total,
@@ -149,7 +149,7 @@ func (l *Logger) Progress(current, total int) {
 // RateLimit logs rate limit warnings
 func (l *Logger) RateLimit(resetTime time.Time, waitDuration time.Duration) {
 	timestamp := time.Now().Format("15:04:05")
-	fmt.Printf("%s %s Rate limit reached. Waiting until %s (%s)\n", 
+	fmt.Printf("%s %s Rate limit reached. Waiting until %s (%s)\n",
 		color.BlueString("[%s]", timestamp),
 		color.YellowString("[⏳]"),
 		resetTime.Format("15:04:05"),

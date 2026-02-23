@@ -26,27 +26,27 @@ type Scanner struct {
 
 // Match represents a single search result
 type Match struct {
-	Dork        dorks.Dork
-	URL         string
-	Repository  string
-	Path        string
-	Score       float64
-	Timestamp   time.Time
+	Dork       dorks.Dork
+	URL        string
+	Repository string
+	Path       string
+	Score      float64
+	Timestamp  time.Time
 }
 
 // ScanResults holds the aggregated scan results
 type ScanResults struct {
-	Matches       []Match
-	TotalDorks    int
-	TotalMatches  int
-	UniqueFiles   int
-	HighPriority  int
+	Matches        []Match
+	TotalDorks     int
+	TotalMatches   int
+	UniqueFiles    int
+	HighPriority   int
 	MediumPriority int
-	LowPriority   int
-	Duration      string
-	OutputFile    string
-	Target        string
-	ScanDate      time.Time
+	LowPriority    int
+	Duration       string
+	OutputFile     string
+	Target         string
+	ScanDate       time.Time
 }
 
 // GitHubSearchResponse represents the GitHub API response
@@ -139,7 +139,7 @@ func (s *Scanner) scanConcurrent(dorkList []dorks.Dork) []Match {
 
 	// Create worker pool
 	jobs := make(chan dorks.Dork, len(dorkList))
-	
+
 	// Start workers
 	for i := 0; i < s.config.Workers; i++ {
 		wg.Add(1)
@@ -148,19 +148,19 @@ func (s *Scanner) scanConcurrent(dorkList []dorks.Dork) []Match {
 			for dork := range jobs {
 				// Perform search
 				dorkMatches := s.searchDork(dork)
-				
+
 				// Add matches
 				if len(dorkMatches) > 0 {
 					mu.Lock()
 					matches = append(matches, dorkMatches...)
 					mu.Unlock()
 				}
-				
+
 				// Update progress bar
 				if s.bar != nil {
 					s.bar.Add(1)
 				}
-				
+
 				// Rate limiting delay
 				time.Sleep(time.Duration(s.config.Delay) * time.Second)
 			}
@@ -190,25 +190,25 @@ func (s *Scanner) searchDork(dork dorks.Dork) []Match {
 	targetType := s.config.GetTargetType()
 	target := s.config.GetTarget()
 	query := fmt.Sprintf("%s:%s %s", targetType, target, dork.Pattern)
-	
+
 	s.logger.Debug("Searching: %s", query)
 
 	// Perform search with retry
 	var response *GitHubSearchResponse
 	var err error
-	
+
 	for retries := 0; retries < 3; retries++ {
 		response, err = s.performSearch(query)
 		if err == nil {
 			break
 		}
-		
+
 		// Check if it's a rate limit error
 		if err.Error() == "rate_limit" {
 			s.handleRateLimit()
 			continue
 		}
-		
+
 		s.logger.Debug("Search failed (attempt %d/3): %v", retries+1, err)
 		time.Sleep(time.Duration(retries+1) * time.Second)
 	}
@@ -227,7 +227,7 @@ func (s *Scanner) searchDork(dork dorks.Dork) []Match {
 	// Convert to matches
 	matches := make([]Match, 0, len(response.Items))
 	urls := make([]string, 0, len(response.Items))
-	
+
 	for _, item := range response.Items {
 		match := Match{
 			Dork:       dork,
@@ -249,7 +249,7 @@ func (s *Scanner) searchDork(dork dorks.Dork) []Match {
 
 // performSearch executes the GitHub API search request
 func (s *Scanner) performSearch(query string) (*GitHubSearchResponse, error) {
-	urlStr := fmt.Sprintf("https://api.github.com/search/code?q=%s&per_page=100", 
+	urlStr := fmt.Sprintf("https://api.github.com/search/code?q=%s&per_page=100",
 		url.QueryEscape(query))
 
 	req, err := http.NewRequestWithContext(context.Background(), "GET", urlStr, nil)
@@ -292,10 +292,10 @@ func (s *Scanner) performSearch(query string) (*GitHubSearchResponse, error) {
 // handleRateLimit waits until the rate limit is reset
 func (s *Scanner) handleRateLimit() {
 	s.logger.Debug("Rate limit hit, checking reset time...")
-	
+
 	req, _ := http.NewRequest("GET", "https://api.github.com/rate_limit", nil)
 	req.Header.Set("Authorization", "token "+s.config.Token)
-	
+
 	resp, err := s.client.Do(req)
 	if err != nil {
 		s.logger.Warning("Could not fetch rate limit info, waiting 60 seconds...")

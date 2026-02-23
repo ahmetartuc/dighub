@@ -53,10 +53,10 @@ func (c *Config) Validate() error {
 	}
 
 	// Validate token format
-	if !strings.HasPrefix(c.Token, "ghp_") && 
-	   !strings.HasPrefix(c.Token, "gho_") && 
-	   !strings.HasPrefix(c.Token, "ghu_") &&
-	   !strings.HasPrefix(c.Token, "ghs_") {
+	if !strings.HasPrefix(c.Token, "ghp_") &&
+		!strings.HasPrefix(c.Token, "gho_") &&
+		!strings.HasPrefix(c.Token, "ghu_") &&
+		!strings.HasPrefix(c.Token, "ghs_") {
 		return errors.New("invalid GitHub token format (must start with ghp_, gho_, ghu_, or ghs_)")
 	}
 

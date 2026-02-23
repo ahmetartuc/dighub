@@ -93,20 +93,20 @@ func (h *Handler) writeTerminal(results *scanner.ScanResults) error {
 // displayMatches shows a list of matches
 func (h *Handler) displayMatches(matches []scanner.Match) {
 	for _, match := range matches {
-		fmt.Printf("\n%s %s\n", 
-			color.BlueString("Dork:"), 
+		fmt.Printf("\n%s %s\n",
+			color.BlueString("Dork:"),
 			color.WhiteString(match.Dork.Pattern))
-		fmt.Printf("%s %s\n", 
-			color.BlueString("Category:"), 
+		fmt.Printf("%s %s\n",
+			color.BlueString("Category:"),
 			color.CyanString(match.Dork.Category))
-		fmt.Printf("%s %s\n", 
-			color.BlueString("Repository:"), 
+		fmt.Printf("%s %s\n",
+			color.BlueString("Repository:"),
 			color.GreenString(match.Repository))
-		fmt.Printf("%s %s\n", 
-			color.BlueString("File:"), 
+		fmt.Printf("%s %s\n",
+			color.BlueString("File:"),
 			color.YellowString(match.Path))
-		fmt.Printf("%s %s\n", 
-			color.BlueString("URL:"), 
+		fmt.Printf("%s %s\n",
+			color.BlueString("URL:"),
 			match.URL)
 	}
 }
@@ -121,13 +121,13 @@ func (h *Handler) writeJSON(results *scanner.ScanResults) error {
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-	
+
 	output := map[string]interface{}{
 		"scan_info": map[string]interface{}{
-			"target":       results.Target,
-			"scan_date":    results.ScanDate,
-			"duration":     results.Duration,
-			"total_dorks":  results.TotalDorks,
+			"target":      results.Target,
+			"scan_date":   results.ScanDate,
+			"duration":    results.Duration,
+			"total_dorks": results.TotalDorks,
 		},
 		"summary": map[string]interface{}{
 			"total_matches":   results.TotalMatches,

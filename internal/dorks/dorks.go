@@ -49,7 +49,7 @@ func GetDorks() []Dork {
 		{Pattern: "filename:.env ADMIN_PASSWORD", Priority: PriorityHigh, Category: "Admin", Description: "Admin password"},
 		{Pattern: "filename:.env ROOT_PASSWORD", Priority: PriorityHigh, Category: "Admin", Description: "Root password"},
 		{Pattern: "filename:.env MASTER_KEY", Priority: PriorityHigh, Category: "Encryption", Description: "Master key"},
-		
+
 		// MEDIUM PRIORITY - Sensitive configurations and webhooks
 		{Pattern: "discord.com/api/webhooks", Priority: PriorityMedium, Category: "Webhooks", Description: "Discord webhook"},
 		{Pattern: "discordapp.com/api/webhooks", Priority: PriorityMedium, Category: "Webhooks", Description: "Discord app webhook"},
@@ -93,7 +93,7 @@ func GetDorks() []Dork {
 		{Pattern: "filename:.env VERCEL_API_KEY", Priority: PriorityMedium, Category: "Hosting", Description: "Vercel API key"},
 		{Pattern: "filename:.env NETLIFY_AUTH_TOKEN", Priority: PriorityMedium, Category: "Hosting", Description: "Netlify auth token"},
 		{Pattern: "filename:.env HEROKU_API_KEY", Priority: PriorityMedium, Category: "Hosting", Description: "Heroku API key"},
-		
+
 		// LOW PRIORITY - General configuration files and patterns
 		{Pattern: "filename:config.json api_key", Priority: PriorityLow, Category: "Config", Description: "API key in config"},
 		{Pattern: "filename:settings.py SECRET_KEY", Priority: PriorityLow, Category: "Django", Description: "Django secret key"},
@@ -139,7 +139,7 @@ func FilterByPriority(dorks []Dork, priority string) []Dork {
 	if priority == "all" {
 		return dorks
 	}
-	
+
 	var filtered []Dork
 	for _, dork := range dorks {
 		if dork.Priority == priority {
@@ -154,13 +154,13 @@ func FilterByInclude(dorks []Dork, patterns []string) []Dork {
 	if len(patterns) == 0 {
 		return dorks
 	}
-	
+
 	var filtered []Dork
 	for _, dork := range dorks {
 		for _, pattern := range patterns {
-			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) || 
-			   strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) || 
-			   strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
+			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) ||
+				strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) ||
+				strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
 				filtered = append(filtered, dork)
 				break
 			}
@@ -174,14 +174,14 @@ func FilterByExclude(dorks []Dork, patterns []string) []Dork {
 	if len(patterns) == 0 {
 		return dorks
 	}
-	
+
 	var filtered []Dork
 	for _, dork := range dorks {
 		exclude := false
 		for _, pattern := range patterns {
-			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) || 
-			   strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) || 
-			   strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
+			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) ||
+				strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) ||
+				strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
 				exclude = true
 				break
 			}

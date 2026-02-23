@@ -128,7 +128,7 @@ func printSummary(results *scanner.ScanResults, log *logger.Logger) {
 	fmt.Println(strings.Repeat("═", 50))
 	fmt.Println(color.CyanString("SCAN SUMMARY"))
 	fmt.Println(strings.Repeat("═", 50))
-	
+
 	fmt.Printf("%s %d\n", color.BlueString("Total Dorks Scanned:"), results.TotalDorks)
 	fmt.Printf("%s %d\n", color.GreenString("Matches Found:"), results.TotalMatches)
 	fmt.Printf("%s %d\n", color.YellowString("Unique Files:"), results.UniqueFiles)
@@ -136,9 +136,9 @@ func printSummary(results *scanner.ScanResults, log *logger.Logger) {
 	fmt.Printf("%s %d\n", color.MagentaString("Medium Priority:"), results.MediumPriority)
 	fmt.Printf("%s %d\n", color.CyanString("Low Priority:"), results.LowPriority)
 	fmt.Printf("%s %s\n", color.BlueString("Duration:"), results.Duration)
-	
+
 	fmt.Println(strings.Repeat("═", 50))
-	
+
 	if results.TotalMatches > 0 {
 		log.Success("✓ Scan completed successfully!")
 		if results.OutputFile != "" {
