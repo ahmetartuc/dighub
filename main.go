@@ -7,7 +7,7 @@ import (
 	"github.com/ahmetartuc/dighub/internal/cmd"
 )
 
-var version = "2.0.0"
+var version = "2.0.1"
 
 func main() {
 	os.Args = normalizeArgs(os.Args)
