@@ -7,6 +7,8 @@
 
 DigHub is a CLI tool that scans a GitHub organization or user's public repositories for exposed secrets, credentials, and sensitive files. It ships with 100+ dork patterns, concurrent scanning, and multiple output formats (terminal, JSON, CSV, HTML).
 
+![DigHub scanning an organization](assets/screenshot.png)
+
 ## Install
 
 ```bash
