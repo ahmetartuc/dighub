@@ -5,7 +5,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-DigHub is a CLI tool that scans a GitHub organization or user's public repositories for exposed secrets, credentials, and sensitive files. It ships with 100+ dork patterns, concurrent scanning, and multiple output formats (terminal, JSON, CSV, HTML).
+DigHub is a CLI tool that scans a GitHub organization or user's public repositories for exposed secrets, credentials, and sensitive files. It ships with 140+ dork patterns — covering cloud, database, payment, and AI/LLM provider keys (OpenAI, Anthropic, Gemini, Hugging Face, Groq, and more) — plus concurrent scanning and multiple output formats (terminal, JSON, CSV, HTML).
 
 ![DigHub scanning an organization](assets/screenshot.png)
 
