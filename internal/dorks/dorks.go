@@ -1,6 +1,9 @@
 package dorks
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // Priority levels for dorks
 const (
@@ -188,7 +191,43 @@ func FilterByPriority(dorks []Dork, priority string) []Dork {
 	return filtered
 }
 
-// FilterByInclude returns dorks that match include patterns
+// matchesTerm reports whether a dork matches a single include/exclude term.
+// The term matches when it equals the dork's category (case-insensitive) or
+// appears as a whole word in the pattern or description. Whole-word matching
+// (splitting on non-alphanumeric runs) avoids false positives from short
+// terms bleeding into unrelated words, e.g. "AI" matching "Email"/"MAIL".
+func matchesTerm(dork Dork, term string) bool {
+	term = strings.ToLower(strings.TrimSpace(term))
+	if term == "" {
+		return false
+	}
+
+	if strings.ToLower(dork.Category) == term {
+		return true
+	}
+
+	isSep := func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsNumber(r) }
+	for _, field := range []string{dork.Pattern, dork.Description} {
+		for _, token := range strings.FieldsFunc(field, isSep) {
+			if strings.ToLower(token) == term {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// matchesAny reports whether a dork matches any of the given terms.
+func matchesAny(dork Dork, terms []string) bool {
+	for _, term := range terms {
+		if matchesTerm(dork, term) {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterByInclude returns dorks that match at least one include term.
 func FilterByInclude(dorks []Dork, patterns []string) []Dork {
 	if len(patterns) == 0 {
 		return dorks
@@ -196,19 +235,14 @@ func FilterByInclude(dorks []Dork, patterns []string) []Dork {
 
 	var filtered []Dork
 	for _, dork := range dorks {
-		for _, pattern := range patterns {
-			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) ||
-				strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) ||
-				strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
-				filtered = append(filtered, dork)
-				break
-			}
+		if matchesAny(dork, patterns) {
+			filtered = append(filtered, dork)
 		}
 	}
 	return filtered
 }
 
-// FilterByExclude returns dorks that don't match exclude patterns
+// FilterByExclude returns dorks that match none of the exclude terms.
 func FilterByExclude(dorks []Dork, patterns []string) []Dork {
 	if len(patterns) == 0 {
 		return dorks
@@ -216,16 +250,7 @@ func FilterByExclude(dorks []Dork, patterns []string) []Dork {
 
 	var filtered []Dork
 	for _, dork := range dorks {
-		exclude := false
-		for _, pattern := range patterns {
-			if strings.Contains(strings.ToLower(dork.Pattern), strings.ToLower(pattern)) ||
-				strings.Contains(strings.ToLower(dork.Category), strings.ToLower(pattern)) ||
-				strings.Contains(strings.ToLower(dork.Description), strings.ToLower(pattern)) {
-				exclude = true
-				break
-			}
-		}
-		if !exclude {
+		if !matchesAny(dork, patterns) {
 			filtered = append(filtered, dork)
 		}
 	}
